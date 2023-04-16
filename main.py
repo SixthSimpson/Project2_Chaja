@@ -144,16 +144,16 @@ else:
     print(machine)
     print(user)
     print(date)
-    print(','.join(str(x) for x in sub_date))
-    # uid = os.getuid()
-    # print(uid)
+    print(time.asctime(sub_date))
+    uid = os.uname().nodename
+    print(uid)
 
     #put in a col and insert to DB
     mydict1 = {"machine": machine, "user": user, "date": date, "submitted date": sub_date}
-    x = mycol.insert_one(mydict1)
+    #x = mycol.insert_one(mydict1)
 
     mydict2 = {"user": user, "date": date, "frames to fix": frames}
-    x = mycol2.insert_one(mydict2)
+    #x = mycol2.insert_one(mydict2)
 
     # csv file beggining
     csv_file = 'output.csv'
