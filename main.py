@@ -4,9 +4,11 @@ import csv
 import datetime
 import os
 import argparse
+import certifi
 import pymongo
 
-myclient = pymongo.MongoClient("mongodb+srv://SixthSimpson:College202023@cluster0.02rh4h3.mongodb.net/?retryWrites=true&w=majority")
+myclient = pymongo.MongoClient("mongodb+srv://SixthSimpson:College202023@cluster0.02rh4h3.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=certifi.where())
+
 mydb = myclient["Proj2_Database"]
 mycol = mydb["container 1"]
 mycol2 = mydb["container 2"]
@@ -19,13 +21,12 @@ parser.add_argument("-v", "--verbose", action="store_true", help="show console o
 parser.add_argument("-o", "--output", action="store_true", help="output to csv/ default to database")
 
 args = parser.parse_args()
-print(args.filename)
+
 # xytech folder handling
 xytech_folders = []
 for line in args.xytech:
     if "/" in line:
         xytech_folders.append(line)
-
 
 # go through all files in the input values
 for files in args.filename:
@@ -91,10 +92,11 @@ for files in args.filename:
     d1 = os.path.splitext(d)
     date = d1[0]
     sub_date = datetime.datetime.now()
+    uid = os.uname().nodename
 
     # put in a col and insert to DB
-    # mydict1 = {"script runner: ": uid, "machine": machine, "user": user, "date": date, "submitted date": sub_date}
-    # x = mycol.insert_one(mydict1)
+    mydict1 = {"script runner: ": uid, "machine": machine, "user": user, "date": date, "submitted date": sub_date}
+    x = mycol.insert_one(mydict1)
 
     mydict2 = {"user": user, "date": date, "frames to fix": frames}
     x = mycol2.insert_one(mydict2)
@@ -109,10 +111,9 @@ for files in args.filename:
             writer.writerow(['Location and Frames to Fix'])
 
             for frame in frames:
-                writer.writerow(frame)
+                writer.writerow(['"' + frame + '"'])
 
-if args.verbose:
-    for files in args.filename:
+    if args.verbose:
         db_parse = files.name.split("_")
         machine = db_parse.pop(0)
         user = db_parse.pop(0)
@@ -120,15 +121,15 @@ if args.verbose:
         d1 = os.path.splitext(d)
         date = d1[0]
         sub_date = datetime.datetime.now()
+
         # test that data is being stored correctly
         print(machine)
         print(user)
         print(date)
         print(sub_date.strftime("%c"))
-        # uid = os.uname().nodename
-        # print(uid)
-    for frame in frames:
-        print(frame)
+        print(uid)
+        for frame in frames:
+            print(frame)
 
 
 
