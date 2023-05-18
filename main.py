@@ -86,6 +86,7 @@ for files in args.filename:
             else:
                 str = ("%s %s-%s" % (new_location, first, last))
                 frames.append(str)
+
     ##tear apart the file name and seperate the machine, user, and the date split the extension into a tuple
     user = db_parse.pop(0)
     d = db_parse.pop(0)
@@ -94,15 +95,8 @@ for files in args.filename:
     sub_date = datetime.datetime.now()
     uid = os.uname().nodename
 
-    # put in a col and insert to DB
-    mydict1 = {"script runner: ": uid, "machine": machine, "user": user, "date": date, "submitted date": sub_date}
-    x = mycol.insert_one(mydict1)
-
-    mydict2 = {"user": user, "date": date, "frames to fix": frames}
-    x = mycol2.insert_one(mydict2)
-
     if args.output:
-        # csv file beggining
+        # csv file beginning
         csv_file = 'output.csv'
         with open(csv_file, 'w', newline='') as f:
             writer = csv.writer(f)
@@ -112,6 +106,13 @@ for files in args.filename:
 
             for frame in frames:
                 writer.writerow(['"' + frame + '"'])
+
+    # put in a col and insert to DB
+    mydict1 = {"script runner: ": uid, "machine": machine, "user": user, "date": date, "submitted date": sub_date}
+    x = mycol.insert_one(mydict1)
+
+    mydict2 = {"user": user, "date": date, "frames to fix": frames}
+    x = mycol2.insert_one(mydict2)
 
     if args.verbose:
         db_parse = files.name.split("_")
@@ -130,7 +131,28 @@ for files in args.filename:
         print(uid)
         for frame in frames:
             print(frame)
+"""
+#query for TDanza work
+user = "TDanza"
+work1 = []
+
+query = {"user": user}
+result1 = mycol2.find(query)
+
+for result in result1:
+    work1 += result["frames to fix"]
+
+for x in work1:
+    print(x)
+
+#query for stuff before 20230325
 
 
-
-
+#query for usernames for flame users only
+query = {"machine": "Flame"}
+results4 = mycol.find(query)
+# Iterate over the results and print each document
+for result in results4:
+    if result["machine"] == "Flame":
+        print("User: " + result["user"])
+"""
